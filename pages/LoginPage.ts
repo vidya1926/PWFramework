@@ -12,7 +12,7 @@ export class LoginPage extends PlaywrightWrapper{
     
     async doLogin(username: string, password: string){
         console.log("Login process initiated...");
-        await this.loadUrl(LoginPage.pageUrl);
+        await this.loadApp(LoginPage.pageUrl);
         await this.clearAndtype("#username", "Username", username);
         await this.clearAndtype("#password", "Password", password);
         console.log("Logging In...");
@@ -20,7 +20,7 @@ export class LoginPage extends PlaywrightWrapper{
         console.log('Loading the page...');        
         await this.loadState('load');
         console.log('Storing state...');        
-        await this.storageState('./login/salesforceLogin.json');
+        await this.context.storageState({path:"login/salesforceLogin.json"});
         console.log(`Title of the page is: ${await this.getTitle()}`);
          
     }
