@@ -1,39 +1,67 @@
-import { Page, test, BrowserContext, Locator } from "@playwright/test";
+import { Page, test, BrowserContext, expect } from "@playwright/test";
 
 export abstract class PlaywrightWrapper {
 
-    readonly page: Page;
-    readonly context: BrowserContext;
-    protected newWindow: Page | null = null;
-    protected multiWindow: Page | null = null;
+    /**
+    * Represents a class with properties for managing page and browser context, and methods for interacting with web elements.
+    */
+    readonly page: Page;    // Represents the Page object associated with the current context.
+    readonly context: BrowserContext;   // Represents the BrowserContext object associated with the current context.
+    protected newWindow: Page | null = null;    // Stores a reference to a new window Page object, if opened.
+    protected multiWindow: Page | null = null;  // Stores a reference to a multi-window Page object, if applicable.
 
-    constructor(page: Page, context:BrowserContext) {
+    /**
+    * Constructs a new instance of the class with the provided Page and BrowserContext.
+    * @param page The Page object associated with the constructor.
+    * @param context The BrowserContext object associated with the constructor.
+    */
+    constructor(page: Page, context: BrowserContext) {
         this.page = page;
         this.context = context;
     }
 
+    /**
+    * Loads the specified URL in the current page context.
+    * @param url The URL to be loaded.
+    */
     async loadApp(url: string): Promise<void> {
         try {
-           await test.step(`The URL ${url} loaded`, async() => {
-                await this.page.goto(url, {timeout: 60000});
-           });
+            await test.step(`The URL ${url} loaded`, async () => {
+                await this.page.goto(url);
+            });
         } catch (error) {
-            console.error("Error loading the page", error);            
+            console.error("Error loading the page", error);
         }
     }
 
+    /**
+    * Captures the storage state of the current context and saves it to a specified path.
+    * @param path The path where the storage state should be saved.
+    */
     async storageState(path: string): Promise<void> {
-        await this.context.storageState({path: path});
+        await this.context.storageState({ path: path });
     }
 
+    /**
+    * Types the provided data into an input element identified by the locator.
+    * @param locator The selector to locate the input element.
+    * @param name The name or description of the input element.
+    * @param data The data to be typed into the input element.
+    */
     async type(locator: string, name: string, data: string): Promise<void> {
-        await test.step(`Testbox ${name} filled with ${data}`, async()=>{
-           await this.page.locator(locator).fill(data);
+        await test.step(`Testbox ${name} filled with ${data}`, async () => {
+            await this.page.locator(locator).fill(data);
         });
     }
 
+    /**
+    * Clears the input element and then types the provided data into it.
+    * @param locator The selector to locate the input element.
+    * @param name The name or description of the input element.
+    * @param data The data to be typed into the input element after clearing.
+    */
     async clearAndtype(locator: string, name: string, data: string): Promise<void> {
-        await test.step(`Testbox ${name} filled with ${data}`, async() => {
+        await test.step(`Testbox ${name} filled with ${data}`, async () => {
             await this.page.waitForSelector(locator, { state: 'visible', timeout: 40000 });  // Wait for the element to be visible
             const element = this.page.locator(locator);
             await element.clear();
@@ -41,157 +69,164 @@ export abstract class PlaywrightWrapper {
         });
     }
 
+    /**
+    * Types the provided data into an input element and then simulates pressing Enter key.
+    * @param locator The selector to locate the input element.
+    * @param name The name or description of the input element.
+    * @param data The data to be typed into the input element.
+    */
     async typeAndEnter(locator: string, name: string, data: string): Promise<void> {
-        await test.step(`Testbox ${name} filled with ${data}`, async() => {
+        await test.step(`Testbox ${name} filled with ${data}`, async () => {
             await this.page.locator(locator).clear();
             await this.page.locator(locator).fill(data);
             await this.page.keyboard.press('Enter');
         });
-
     }
+
+    /**
+    * Clicks on an element identified by the locator.
+    * @param locator The selector to locate the element to be clicked.
+    * @param name The name or description of the element to be clicked.
+    * @param type The type or action being performed on the element (e.g., button, link).
+    */
     async click(locator: string, name: string, type: string): Promise<void> {
-        await test.step(`The ${name} ${type} is clicked`, async() => {
-            await this.page.waitForSelector(locator, {state:'attached'});
+        await test.step(`The ${name} ${type} is clicked`, async () => {
+            await this.page.waitForSelector(locator, { state: 'attached' });
             await this.page.locator(locator).click();
-       })
+        })
     }
 
+    /**
+    * Clicks on a dynamically loaded element identified by the locator after waiting for it to be attached.
+    * Logs detailed messages for debugging.
+    * @param locator The selector to locate the element to be clicked.
+    * @param name The name or description of the element to be clicked.
+    * @param type The type or action being performed on the element (e.g., button, link).
+    */
+    async dynamicElementClick(locator: string, name: string, type: string): Promise<void> {
+         await test.step(`The ${name} ${type} is clicked`, async() => {
+             console.log(`Waiting for selector: ${locator}`);
+             try {
+                 await this.page.waitForSelector(locator, { state: 'attached', timeout: 60000 }); // Increased timeout
+                 console.log(`Selector ${locator} is now attached. Clicking on it.`);
+                 await this.page.locator(locator).click();
+                 console.log(`Clicked on ${locator}`);
+             } catch (error) {
+                 console.error(`Failed to find or click on the selector: ${locator}`, error);
+                 throw error;
+             }
+         });
+     } 
+
+    /**
+    * Clicks on an element identified by the locator forcefully, bypassing any visibility checks.
+    * @param locator The selector to locate the element to be clicked.
+    * @param name The name or description of the element to be clicked.
+    * @param type The type or action being performed on the element (e.g., button, link).
+    */
     async forceClick(locator: string, name: string, type: string): Promise<void> {
-        await test.step(`The ${name} ${type} is clicked`, async() => {
-            await this.page.waitForSelector(locator, {state:'attached'});
-            await this.page.locator(locator).click({force:true});
-       })
+        await test.step(`The ${name} ${type} is clicked`, async () => {
+            await this.page.waitForSelector(locator, { state: 'attached' });
+            await this.page.locator(locator).click({ force: true });
+        })
     }
 
+    /**
+    * Retrieves the inner text of an element identified by the locator.
+    * @param locator The selector to locate the element from which to get the text.
+    * @returns A promise that resolves to the text content of the element.
+    */
     async getText(locator: string): Promise<string> {
-        return await test.step(`Getting text from ${locator}`, async() => {
-            await this.page.waitForSelector(locator, {state:'attached'});
+        return await test.step(`Getting text from ${locator}`, async () => {
+            await this.page.waitForSelector(locator, { state: 'attached' });
             return await this.page.locator(locator).innerText();
         })
     }
 
+    /**
+    * Retrieves the current input value of an input element identified by the locator.
+    * @param locator The selector to locate the input element.
+    * @returns A promise that resolves to the current value of the input element.
+    */
     async getInput(locator: string): Promise<string> {
-        return await test.step(`Getting text from ${locator}`, async() => {
-            await this.page.waitForSelector(locator, {state:'attached'});
+        return await test.step(`Getting text from ${locator}`, async () => {
+            await this.page.waitForSelector(locator, { state: 'attached' });
             return await this.page.locator(locator).inputValue();
         })
     }
 
+    /**
+    * Retrieves the title of the current page.
+    * @returns A promise that resolves to the title of the page.
+    */
     async getTitle(): Promise<string> {
-        return await test.step(`Title of the page is displayed`, async() => {   
-            await this.page.waitForLoadState('networkidle');        
+        return await test.step(`Title of the page is displayed`, async () => {
+            await this.page.waitForLoadState('networkidle');
             return await this.page.title();
         })
     }
 
+    /**
+    * Waits for a specific load state of the page (e.g., load, domcontentloaded, networkidle).
+    * @param state The state to wait for (load, domcontentloaded, networkidle).
+    */
     async loadState(state: "load" | "domcontentloaded" | "networkidle"): Promise<void> {
-        await test.step(`Waiting for the load state ${state}`, async() => {
-            await this.page.waitForLoadState(state, {timeout: 40000});
+        await test.step(`Waiting for the load state ${state}`, async () => {
+            await this.page.waitForLoadState(state, { timeout: 40000 });
         })
     }
 
+    /**
+    * Logs the number of currently open browser pages.
+    */
     async windowCount(): Promise<void> {
-        await test.step(`Number of pages opened`, async() => {
+        await test.step(`Number of pages opened`, async () => {
             const totalPages = this.context.pages();
             console.log(totalPages);
-            console.log(`Number of pages opened: ${totalPages.length}`);            
-        })        
+            console.log(`Number of pages opened: ${totalPages.length}`);
+        })
     }
 
+    /**
+    * Logs the titles of all currently open browser pages.
+    */
     async allWindowTitles(): Promise<void> {
-        await test.step(`Titles of the pages are displayed`, async() => {
+        await test.step(`Titles of the pages are displayed`, async () => {
             const pages = this.context.pages();
-            for(let page of pages){
+            for (let page of pages) {
                 const title = await page.title();
                 console.log(`Title of the page: ${title}`);
-            }            
+            }
         })
     }
 
-    async multipleWindowHandle(locator: string, windowTitle: string): Promise<void> {
-        await test.step(`Window is opened`, async() => {
-            const [multiWindow] = await Promise.all([
-                this.context.waitForEvent('page'),
-                this.page.locator(locator).click(),
-            ])
-            this.multiWindow = multiWindow;
-            console.log(`Title of the new window being in focus: ${multiWindow.title()}`);  
-            const pages = this.context.pages();
-                for(let page of pages) {
-                    const pageTitle = await page.title();
-                    console.log(`Title of the page: ${pageTitle}`);
-                    const pageUrl = page.url();
-                    console.log(`The page URL: ${pageUrl}`);                                        
-                    if(pageTitle === windowTitle) {
-                        console.log(`Switching to the page with title: ${windowTitle}`);
-                        await page.bringToFront();
-                        return page;
-                    } else {
-                    console.log(`No page is found`);
-                    return null;
-                    }
-                } 
-        })
-    }
+    /**
+    * Opens a new browser window by clicking on an element identified by the locator.
+    * Waits for the new window to be available and returns its Page object.
+    * @param locator The selector to locate the element that triggers the new window.
+    * @param name The name or description of the element to be clicked.
+    * @returns A promise that resolves to the Page object representing the new window.
+    */
+    async windowHandle(locator: string, name: string): Promise<Page> {
+        return await test.step(`Window is opened`, async () => {
+            console.log(`Setting up promise to wait for new page event.`);
+            const windowPromise = this.context.waitForEvent('page');
 
-    async windowHandle(locator: string): Promise<void> {
-        await test.step(`Window is opened`, async() => {
-            const [newWindow] = await Promise.all([
-                this.context.waitForEvent('page'),
-                this.page.locator(locator).click({timeout: 60000}),
-            ]);
-            //Store the new window instance
-            this.newWindow = newWindow;
-            await newWindow.waitForLoadState('load'); 
-            console.log(`Title of the new window being in focus: ${await newWindow.title()}`);  
-            /* const pages = this.context.pages();
-                for(let page of pages) {
-                    const pageTitle = await page.title();
-                    console.log(`Title of the page: ${pageTitle}`);
-                    const pageUrl = page.url();
-                    console.log(`The page URL: ${pageUrl}`);                                        
-                } */
-        })
-    }
+            console.log(`Clicking on locator: ${locator} to open new window.`);
+            await this.click(locator, name, "Button");
 
-    async findShadowElement(locatorType: shadowLocator, locatorValue: string): Promise<any> {
-        let locator:any;
-        switch (locatorType) {
-            case "text":
-                locator = this.page.getByText(locatorValue);
-                await this.click(locator, locatorValue, "Shadow Element")
-                break;
-            case "testId":
-                locator = this.page.getByTestId(locatorValue);
-                await this.click(locator, locatorValue, "Shadow Element")
-                break;
-            case "label":
-                locator = this.page.getByLabel(locatorValue);
-                await this.click(locator, locatorValue, "Shadow Element")
-                break;
-            case "role":
-                locator = this.page.getByRole('link', {name: locatorValue});
-                await this.click(locator, locatorValue, "Shadow Element")
-                break;
-            case "placeholder":
-                locator = this.page.getByPlaceholder(locatorValue);
-                await this.click(locator, locatorValue, "Shadow Element")
-                break;
-            case "title":
-                locator = this.page.getByTitle(locatorValue);
-                await this.click(locator, locatorValue, "Shadow Element")
-                break;
-            default:
-                throw new Error(`Unsupported locator type: ${locatorType}`);
-        }
-        return locator;
-    }
+            console.log(`Waiting for the new window to be available.`);
+            const newWindow = await windowPromise;
 
-    getNewWindow(): Page | null {
-        return this.newWindow;
-    }
+            console.log(`New window found, waiting for load state.`);
+            await newWindow.waitForLoadState('load');
 
-    getMultipleWindow(): Page | null {
-        return this.multiWindow;
+            const url = newWindow.url();
+            console.log(`New window detected: URL = ${url}`);
+            await expect(newWindow).toHaveURL(url);
+
+            return newWindow;
+        });
     }
+ 
 }

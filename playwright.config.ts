@@ -1,81 +1,65 @@
+/**
+ * Configuration file for Playwright test framework.
+ * Configures test directory, timeouts, parallel execution, retries, workers, reporters, and test settings.
+ */
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
+  // Specifies the directory where tests are located
   testDir: './tests',
-  timeout: 240*1000,
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+  // Global timeout setting for tests in milliseconds
+  timeout: 240 * 1000,
+
+  // Enables fully parallel execution of tests if true
+  fullyParallel: true,
+
+  // Prevents 'only' tests from being executed in CI environments
+  forbidOnly: !!process.env.CI,
+
+  // Number of retries for failed tests, increased in CI environment
+  retries: process.env.CI ? 2 : 0,
+
+  // Number of worker processes for test execution, adjusted for CI environment
+  workers: process.env.CI ? 1 : 1,
+
+  // Specifies reporters for test results, including HTML with auto-open feature
+  reporter: [['html',{open:'always'}],['./custom-reporters/reporter.ts']],
+  
+  // Global settings for Playwright test execution
+  use: {
+    // Enables tracing for test operations
     trace: 'on',
+
+    // Runs tests in non-headless mode for visibility
     headless: false,
-    video:'on'
+
+    // Captures video recordings of test execution
+    video: 'on',
+
+    // Takes screenshots on test failure
+    screenshot: 'on',
   },
 
-  /* Configure projects for major browsers */
+  // Configuration for individual test projects
   projects: [
     {
+      // Name of the project (browser) for testing
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
 
-   /* {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+      // Configuration specific to Chromium browser testing
+      use: {
+        // Loads a predefined device configuration (Desktop Chrome)
+        ...devices['Desktop Chrome'],
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },*/
+        // Launch options for Chromium browser
+        launchOptions: {
+          args: ["--start-maximized"] // Starts Chromium in maximized window mode
+        },
 
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+        // Timeout for actions within tests in milliseconds
+        actionTimeout: 15000,
+      }
+    }
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

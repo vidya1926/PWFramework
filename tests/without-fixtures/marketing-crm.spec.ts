@@ -1,7 +1,7 @@
 import { test } from "@playwright/test";
-import { HomePage } from "../pages/HomePage";
-import { MarketingPage } from "../pages/MarketingPage";
-import { FakerData } from "../utils/faker";
+import { HomePage } from "../../pages/HomePage";
+import { MarketingPage } from "../../pages/MarketingPage";
+import { FakerData } from "../../utils/faker";
 
 test.use({storageState: "login/salesforceLogin.json"})
 test(`Verify Salesforce Verification`, async({page, context}) => {
@@ -11,7 +11,6 @@ test(`Verify Salesforce Verification`, async({page, context}) => {
     let companyName = FakerData.company();
 
     const home = new HomePage(page, context);
-   // await home.init();
     await home.clickAppLauncher();
     await home.clickViewAll();
     await home.menuSearchBox("Marketing CRM Classic");

@@ -5,5 +5,5 @@ import testData from "../data/loginData.json"
 
 test(`Verify login test functionality`, async({page, context})=>{
     const login = new LoginPage(page, context);
-    await login.doLogin(testData.username, testData.password )      
+    await login.autoLogin(testData.username, testData.password )      
 })

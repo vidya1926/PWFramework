@@ -1,86 +1,76 @@
 import { Page, BrowserContext } from "@playwright/test";
 import { URLConstants } from "../constants/urlConstants";
 import { PlaywrightWrapper } from "../utils/playwright";
-import { ConfirmRedirectPage } from "./ConfirmRedirectPage";
-import { LoginPage } from "./LoginPage";
-import testData from "../data/loginData.json"
 
 export class HomePage extends PlaywrightWrapper {
 
+    /**
+    * Locator string for the "Learn More" button on the page.
+    */
+    private learnMoreButtonLocator: string = "//span[text()='Learn More']";
+
+    /**
+    * Name of the "Learn More" button for identification purposes.
+    */
+    private learnMoreButtonName: string = "Learn More";
+
+    /**
+    * URL of the home page for this specific application.
+    */
     static homeUrl = URLConstants.homeURL;
 
+    /**
+    * Constructs a new instance of the HomePage class.
+    * @param page The Page object associated with the home page.
+    * @param context The BrowserContext object associated with the home page.
+    */
     constructor(page:Page, context: BrowserContext) {
         super(page, context);
-        this.common(page, context);
-        // this.setupPageListeners();
+        this.init();     
     }
-
-    private async common(page: Page, context: BrowserContext) {
-        try{
-        const login = new LoginPage(page, context);
-        await login.doLogin(testData.username, testData.password);
-        }
-        catch(error){
-            console.error("Error during the common setup", error);
-            throw error;
-        }
-    }
-
-    /* private setupPageListeners() {
-         // Setting up page event listeners
-         this.page.on('load', async () => {
-            console.log("Salesforce Home Page loaded. Executing after-load actions...");
-            try {
-                await this.executeAfterLoad();
-            } catch (err) {
-                console.error("Error during post-load execution:", err);
-                throw err;
-            }
-        });
-    }
-
-    private async executeAfterLoad() {
-        // Ensuring the page is fully interactive before proceeding
-            console.log("Ensuring the home page is fully loaded...");
-            await this.page.waitForLoadState('networkidle'); // Waits until no network connections for at least 500 ms
-            console.log("Page is fully loaded. Executing tasks...");
-            await this.init();
-            await this.setup(); // Example: Check if setup home link is visible after page load
-    } */
-
-    public async init() {
+    
+    /**
+    * Initializes the home page by loading the HomePage URL.
+    */
+    async init() {
         await this.loadApp(HomePage.homeUrl);
     }
-
-    /* public async setup() {
-        // Example task: Check for a specific element or perform an action
-        const isSetupVisible = await this.page.isVisible("//a[text()='Setup Home']");
-        if (isSetupVisible) {
-            console.log("Setup Home link is visible.");         
-        } else {
-            console.error("Setup Home link is not visible, checking might be necessary.");
-        }
-    } */
-
+    
+    /**
+    * Clicks on the application launcher button to open the app menu.
+    */
     async clickAppLauncher() {
         await this.click("//div[@class='slds-icon-waffle']", "App Launcher", "Toggle Button");
     }
 
+    /**
+    * Clicks on the "View All" button/link to display all applications.
+    */
     async clickViewAll() {
         await this.click("//button[text()='View All']", "View All", "Link");
     }
 
+    /**
+    * Enters text into the menu search box and presses Enter to perform a search.
+    * @param menuInput The text to be entered into the search box.
+    */
     async menuSearchBox(menuInput: string) {
         await this.typeAndEnter("//input[@placeholder='Search apps or items...']", "Search apps or items", menuInput);
     }
 
+    /**
+     * Clicks on a specific menu item identified by the provided data.
+     * @param data The text of the menu item to be clicked.
+     */
     async clickMenu(data: string) {
         await this.click(`//p/mark[text()= '${data}']`, "Menu", "Link");
     }
 
-    async mobilePublisher() {
-        await this.windowHandle("//span[text()='Learn More']");
-        const confirmRedirectPage = new ConfirmRedirectPage(this.page, this.context);
-        await confirmRedirectPage.clickConfirm();
+    /**
+    * Opens the mobile publisher window by clicking on the "Learn More" button.
+    * @returns A promise that resolves to the Page object representing the mobile publisher window.
+    */
+    async mobilePublisher(): Promise<Page> {
+        return await this.windowHandle(this.learnMoreButtonLocator, this.learnMoreButtonName);
     }
 }
