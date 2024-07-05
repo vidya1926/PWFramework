@@ -1,8 +1,7 @@
 import { test } from "../../customFixtures/salesforceFixture";
 import { createJiraIssue } from "../../jira/jira-integration";
 
-test.use({storageState: "login/salesforceLogin.json"})
-test(`Verify Salesforce Verification`, async ({ home, learning }) => {
+test(`Verify Salesforce Verification`, async ({ home, learning, administrator }) => {
     // Perform login
     console.log("Logging in...");
     
@@ -20,12 +19,18 @@ test(`Verify Salesforce Verification`, async ({ home, learning }) => {
     console.log(`Interacting with 'Learning'...`);
     await learning.createAndPublish(newWindow);
 
-    
-    /**
-    * Creates a Jira issue with specified details.
-    * @param summary The summary or title of the Jira issue.
-    * @param description The description or details of the issue being logged.
-    */
-    //createJiraIssue("Salesforce Testcase", "Logging a defect in Learning test module");
-    
+    await learning.clickTrailhead(newWindow);
+    await learning.clickCertification(newWindow);
+    await administrator.clickAdminOverview(newWindow);
+    await administrator.getCertificates(newWindow);   
 });
+
+/**
+* Creates a Jira issue with specified details.
+* @param summary The summary or title of the Jira issue.
+* @param description The description or details of the issue being logged.
+*/
+test.afterAll(() => {
+    createJiraIssue("Salesforce Testcase", "Logging a defect in Learning test module");
+
+})

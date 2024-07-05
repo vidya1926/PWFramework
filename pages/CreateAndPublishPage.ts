@@ -45,4 +45,12 @@ export class createAndPublishPage extends PlaywrightWrapper{
             console.log('New window is not available');
         }
     }
+
+    async clickTrailhead(window: Page) {
+        await window.hover('text = Learning on Trailhead');
+    }
+
+    async clickCertification(window: Page) {
+        await window.click('text = Salesforce Certification');
+    } 
 }

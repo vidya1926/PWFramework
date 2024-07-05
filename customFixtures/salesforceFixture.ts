@@ -1,9 +1,11 @@
-import { test as baseTest } from "@playwright/test"
+import { test as baseTest } from "../utils/retry-test";
 import { createAndPublishPage } from "../pages/CreateAndPublishPage";
 import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import testData from "../data/loginData.json"
 import { MarketingPage } from "../pages/MarketingPage";
+import { AdministratorPage } from "../pages/AdministratorPage";
+import { ServicePage } from "../pages/ServicePage";
 
     /**
     * Represents a fixture for Salesforce-related tests, providing access to specific pages and functionalities.
@@ -14,6 +16,8 @@ type salesforceFixture = {
     home: HomePage                  // Represents the HomePage instance for interacting with the home page.
     learning: createAndPublishPage  // Represents the createAndPublishPage instance for managing learning content.
     marketing: MarketingPage        // Represents the MarketingPage instance for managing marketing activities.
+    administrator: AdministratorPage
+    account: ServicePage
 }
 
     /**
@@ -64,5 +68,15 @@ export const test = baseTest.extend<salesforceFixture> ({
     marketing: async({ page,context }, use) => {
         const marketing = new MarketingPage(page, context);
         await use(marketing);
+    },
+
+    administrator: async({ page,context }, use) => {
+        const administrator = new AdministratorPage(page, context);
+        await use(administrator);
+    },
+
+    account: async({ page,context }, use) => {
+        const account = new ServicePage(page, context);
+        await use(account);
     },
 })

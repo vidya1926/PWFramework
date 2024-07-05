@@ -63,7 +63,7 @@ export class HomePage extends PlaywrightWrapper {
      * @param data The text of the menu item to be clicked.
      */
     async clickMenu(data: string) {
-        await this.click(`//p/mark[text()= '${data}']`, "Menu", "Link");
+        await this.click(`(//p/mark[text()= '${data}'])[1]`, "Menu", "Link");
     }
 
     /**

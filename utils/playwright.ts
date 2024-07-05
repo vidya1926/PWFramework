@@ -1,4 +1,4 @@
-import { Page, test, BrowserContext, expect } from "@playwright/test";
+import { Page, test, BrowserContext, expect, Locator } from "@playwright/test";
 
 export abstract class PlaywrightWrapper {
 
@@ -228,5 +228,12 @@ export abstract class PlaywrightWrapper {
             return newWindow;
         });
     }
- 
+
+    async delayedType(selector: string, value: string) {
+        await this.page.delayedFill(selector, value);
+    }
+
+    async delayedclick(selector: string) {
+        await this.page.clickAndDelay(selector);
+    }
 }

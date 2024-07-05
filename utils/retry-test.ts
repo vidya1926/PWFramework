@@ -1,6 +1,7 @@
 // Importing the 'test' function from the '@playwright/test' module
 import { test as baseTest } from "@playwright/test";
 
+
 // Exporting a customized 'test' function by extending its capabilities
 export const test = baseTest.extend({
 
@@ -33,3 +34,4 @@ export const test = baseTest.extend({
         await use(page);
     }
 });
+

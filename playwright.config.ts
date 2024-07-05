@@ -8,6 +8,8 @@ export default defineConfig({
   // Specifies the directory where tests are located
   testDir: './tests',
 
+  globalSetup: require.resolve('./auth/global-setup'), // Adjust the path to point to the auth folder
+
   // Global timeout setting for tests in milliseconds
   timeout: 240 * 1000,
 
@@ -24,7 +26,11 @@ export default defineConfig({
   workers: process.env.CI ? 1 : 1,
 
   // Specifies reporters for test results, including HTML with auto-open feature
-  reporter: [['html',{open:'always'}],['./custom-reporters/reporter.ts']],
+  reporter: [['html',{open:'always'}],['./custom-reporters/reporter.ts'],['allure-playwright', {
+    detail: true,
+    outputFolder: "my-allure-results",
+    suiteTitle: false,
+  },]],
   
   // Global settings for Playwright test execution
   use: {
@@ -39,6 +45,9 @@ export default defineConfig({
 
     // Takes screenshots on test failure
     screenshot: 'on',
+
+    // Specify the storage state to be used in tests
+    storageState: 'auth/salesforceLogin.json',
   },
 
   // Configuration for individual test projects
