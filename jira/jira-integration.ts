@@ -5,8 +5,8 @@ import path from "path";
 
 // Jira API URL and credentials
 const url = "https://project-practise.atlassian.net/rest/api/2/issue/";
-const username = "subraja.sivathanu@qeagle.com";
-const apiKey = "ATATT3xFfGF0ES51v0_yeGqeq35Rv2w83P0-yqWQEmcMN0IG6CMXMkExfVkUGfcvAnWSuhcg9L22hGErvDCkJSx6xuaZrhX-sUjo9XJ3nnlD3BANBAKX94TSZmr6MatNnr6e6tz9qpwaYEQPnvzVS3-1kh82OhSKZgtb68ryZreJmOSsIfO4ygE=3CC2C06A";
+const username = "";
+const apiKey = "";
 const projectId = "SAL";
 const BATCH_SIZE = 5; // Number of files to upload in each batch
 
