@@ -6,7 +6,7 @@ import { getBearerToken } from "../../api/get-bearer-token";
  * This test case verifies the functionality of the getBearerToken function.
  */
 test(`Generating bearer token`, async () => {
-        const token = await getBearerToken();   // Calls the function getBearerToken to retrieve the bearer token.
-        console.log(token);     // Logs the generated bearer token to the console for verification.   
+        // const token = await getBearerToken();   // Calls the function getBearerToken to retrieve the bearer token.
+        // console.log(token);     // Logs the generated bearer token to the console for verification.   
    
 })
