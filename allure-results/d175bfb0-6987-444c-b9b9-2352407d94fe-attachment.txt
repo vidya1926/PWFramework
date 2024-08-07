@@ -1,6 +1,0 @@
-Logging in...
-Navigating to mobilePublisher...
-Setting up promise to wait for new page event.
-Clicking on locator: //span[text()='Learn More'] to open new window.
-Waiting for the new window to be available.
-The API request is successful

@@ -3,68 +3,75 @@ import fs from "fs";
 import FormData from "form-data";
 import path from "path";
 
-const url = "https://2023-bootcamp.atlassian.net/rest/api/2/issue/"
-const username = "hari@testleaf.com"
-const apiKey = "ATATT3xFfGF0cxPe9amm2Eh2povMKFdeArlU0Fb_VIFH7Qh3lYf73V0lLmXTdpsbteIGFH6f9eBYOPJ91gUTSf562osZ0TyPgIFF_WfVnFbYD-D0brV5dwBBQNgXtvq_9qA93uvejQXu5lkAzGSfn-BEd_alGxsGxmrI5n6KHjlqU7urNqlVKcE=265CCF24"
-const projectId = "S10"
+// Jira API URL and credentials
+const url = "https://project-practise.atlassian.net/rest/api/2/issue/";
+const username = "subraja.sivathanu@qeagle.com";
+const apiKey = "ATATT3xFfGF0ES51v0_yeGqeq35Rv2w83P0-yqWQEmcMN0IG6CMXMkExfVkUGfcvAnWSuhcg9L22hGErvDCkJSx6xuaZrhX-sUjo9XJ3nnlD3BANBAKX94TSZmr6MatNnr6e6tz9qpwaYEQPnvzVS3-1kh82OhSKZgtb68ryZreJmOSsIfO4ygE=3CC2C06A";
+const projectId = "SAL";
+const BATCH_SIZE = 5; // Number of files to upload in each batch
 
-async function createJiraIssue(summary: string, description: string) {
-
+/**
+ * Creates a Jira issue with the given summary and description.
+ * @param summary The summary or title of the Jira issue.
+ * @param description The description or details of the Jira issue.
+ * @returns A promise that resolves to the key of the created Jira issue.
+ */
+async function createJiraIssue(summary: string, description: string): Promise<string> {
     const issueRequestJson = {
         "fields": {
-            "project":
-            {
-                "key": projectId
-            },
+            "project": { "key": projectId },
             "summary": summary,
             "description": description,
-            "issuetype": {
-                "name": "Bug"
-            }
+            "issuetype": { "name": "Bug" }
         }
     };
 
-    axios.post(url, issueRequestJson, {
-        auth: {
-            username: username,
-            password: apiKey
-        },
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    // Send a POST request to create the Jira issue
+    const response = await axios.post(url, issueRequestJson, {
+        auth: { username: username, password: apiKey },
+        headers: { 'Content-Type': 'application/json' }
+    });
 
-    console.log("The API request is successful")
+    console.log("The API request is successful");
+    return response.data.key; // Return the issue key
 }
 
-async function updateJiraIssue(issueKey: string, folderPath: string) {
+/**
+ * Recursively collects all files in a directory and its subdirectories.
+ * @param dir The directory to search for files.
+ * @param fileList The list of files collected.
+ * @returns The list of files.
+ */
+function getAllFiles(dir: string, fileList: string[] = []): string[] {
+    const files = fs.readdirSync(dir);
+    files.forEach((file) => {
+        const filePath = path.join(dir, file);
+        const stats = fs.statSync(filePath);
+        if (stats.isFile()) {
+            fileList.push(filePath);
+        } else if (stats.isDirectory()) {
+            getAllFiles(filePath, fileList);
+        }
+    });
+    return fileList;
+}
+
+/**
+ * Uploads a batch of files as attachments to a Jira issue.
+ * @param issueKey The key of the Jira issue to update.
+ * @param files The files to upload.
+ */
+async function uploadBatch(issueKey: string, files: string[]) {
     const formData = new FormData();
-    console.log(`Current working directory: ${process.cwd()}`);
-    const absoluteFolderPath = path.resolve(folderPath);
-
-    console.log(`Absolute path of folderPath: ${absoluteFolderPath}`);
-    //const files = fs.readdirSync(folderPath);
-    //console.log(files.entries())
-
-    // Append each file to FormData
-    const file = "video.webm";
-    const filePath = path.join(absoluteFolderPath, file);
-    console.log(filePath);
-
-    // Check if it's a file before attempting to read
-    const stats = fs.statSync(filePath);
-    if (stats.isFile()) {
-        const fileSizeInBytes = stats.size;
-        formData.append('file', fs.createReadStream(filePath), { filename: file, knownLength: fileSizeInBytes });
-    } else {
-        console.warn(`${file} is a directory and won't be included in the upload.`);
-    }
-    
+    files.forEach((filePath) => {
+        console.log(`Appending file: ${filePath}`);
+        formData.append('file', fs.createReadStream(filePath), { filename: path.basename(filePath) });
+    });
 
     try {
-        console.log(`${url}${issueKey}/attachments`);
-        // Send a Post Request
-       await axios.post(`${url}${issueKey}/attachments`, formData, {
+        console.log(`Uploading batch to: ${url}${issueKey}/attachments`);
+        // Send a POST request to upload the attachments
+        const response = await axios.post(`${url}${issueKey}/attachments`, formData, {
             auth: {
                 username: username,
                 password: apiKey
@@ -72,22 +79,40 @@ async function updateJiraIssue(issueKey: string, folderPath: string) {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'X-Atlassian-Token': 'no-check'
-            }
-        }).then((payload) => {
-            console.log('payload');
-            console.log(payload);
-
-        }).catch((e) => {
-            console.log('error');
-            console.log(e);
-
-
+            },
+            timeout: 120000 // Set timeout to 120 seconds
         });
 
-        console.log('Attachment uploaded successfully');
+        console.log('Batch uploaded successfully');
+        console.log(response.data);
     } catch (error) {
-        console.error('Attachment upload failed:', error.message);
+        if (error.response) {
+            console.error('Batch upload failed:', error.response.data);
+        } else {
+            console.error('Batch upload failed:', error.message);
+        }
     }
 }
 
-export { createJiraIssue, updateJiraIssue }
+/**
+ * Updates a Jira issue by uploading attachments from the specified folder.
+ * @param issueKey The key of the Jira issue to update.
+ * @param folderPath The path to the folder containing files to attach.
+ */
+async function updateJiraIssue(issueKey: string, folderPath: string) {
+    console.log(`Current working directory: ${process.cwd()}`);
+    const absoluteFolderPath = path.resolve(folderPath); // Resolve the absolute path of the folder
+
+    console.log(`Absolute path of folderPath: ${absoluteFolderPath}`);
+    
+    // Get all files in the specified folder and subdirectories
+    const files = getAllFiles(absoluteFolderPath);
+    console.log(`Files to be uploaded: ${files}`);
+    // Upload files in batches
+    for (let i = 0; i < files.length; i += BATCH_SIZE) {
+        const batch = files.slice(i, i + BATCH_SIZE);
+        await uploadBatch(issueKey, batch);
+    }
+}
+
+export { createJiraIssue, updateJiraIssue };

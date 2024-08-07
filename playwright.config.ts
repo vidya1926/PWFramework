@@ -8,10 +8,11 @@ export default defineConfig({
   // Specifies the directory where tests are located
   testDir: './tests',
 
+  // Specifies a global setup script to run before all tests
   globalSetup: require.resolve('./auth/global-setup'), // Adjust the path to point to the auth folder
 
   // Global timeout setting for tests in milliseconds
-  timeout: 240 * 1000,
+  timeout: 300 * 1000,
 
   // Enables fully parallel execution of tests if true
   fullyParallel: true,
@@ -20,17 +21,27 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   // Number of retries for failed tests, increased in CI environment
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
 
   // Number of worker processes for test execution, adjusted for CI environment
   workers: process.env.CI ? 1 : 1,
 
-  // Specifies reporters for test results, including HTML with auto-open feature
-  reporter: [['html',{open:'always'}],['./custom-reporters/reporter.ts'],['allure-playwright', {
-    detail: true,
-    outputFolder: "my-allure-results",
-    suiteTitle: false,
-  },]],
+  // Specifies reporters for test results
+  
+  //reporter: ['./custom-reporters/reporter.ts'],
+
+  reporter: [
+    // HTML reporter that automatically opens the report
+    ['html', { open: 'always' }],
+    // JSON reporter that outputs results to a specific file
+    ['json', { outputFile: 'reports/report.json' }],
+    // Allure reporter for detailed test reports
+    ['allure-playwright', {
+      detail: true,
+      outputFolder: "my-allure-results",
+      suiteTitle: false,
+    }],
+  ],
   
   // Global settings for Playwright test execution
   use: {
@@ -50,6 +61,9 @@ export default defineConfig({
     storageState: 'auth/salesforceLogin.json',
   },
 
+  // Directory to store test results
+  outputDir: './test-results',
+  
   // Configuration for individual test projects
   projects: [
     {

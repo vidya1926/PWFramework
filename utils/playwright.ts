@@ -229,11 +229,210 @@ export abstract class PlaywrightWrapper {
         });
     }
 
-    async delayedType(selector: string, value: string) {
-        await this.page.delayedFill(selector, value);
+    /**
+     * Enters text into a textbox located within an iframe.
+     * 
+     * @param {string} locator - The selector for the textbox element.
+     * @param {string} name - The name of the textbox, used for logging purposes.
+     * @param {string} data - The data to be entered into the textbox.
+     */
+    async enterTextInFrameTextbox(frameSelector:string, locator: string, name: string, data: string) {
+        // Log the action step for test reporting
+        await test.step(`Textbox ${name} filled with data: ${data}`, async () => {
+            // Locate the frame
+            const frameLocator = this.page.frameLocator(frameSelector);
+        
+            // Check if the element exists within the frame
+            const elementInFrame = await frameLocator.locator(locator).count() > 0;
+
+            if (elementInFrame) {
+              // If the element exists within the frame, interact with it
+             const element = frameLocator.locator(locator);
+             await element.clear(); // Clear any existing text in the textbox
+             await element.fill(data); // Fill the textbox with the provided data
+            } else {
+             // If the element does not exist within the frame, interact with the main page context
+             const element = this.page.locator(locator);
+             await element.clear(); // Clear any existing text in the textbox
+             await element.fill(data); // Fill the textbox with the provided data
+            }
+         });
     }
 
-    async delayedclick(selector: string) {
-        await this.page.clickAndDelay(selector);
+    /**
+     * Clicks a web element located within an iframe.
+     * 
+     * @param {string} frameSelector - The selector for the iframe.
+     * @param {string} locator - The selector for the web element.
+     * @param {string} name - The name of the web element, used for logging purposes.
+     */
+    async clickElementInFrame(frameSelector: string, locator: string, name: string) {
+        // Log the action step for test reporting
+        await test.step(`Click on element ${name}`, async () => {
+         // Locate the frame
+         const frame = this.page.frameLocator(frameSelector);
+
+         // Check if the element exists within the frame
+         const elementInFrame = await frame.locator(locator).count() > 0;
+
+             if (elementInFrame) {
+                 // If the element exists within the frame, interact with it
+                 const element = frame.locator(locator);
+                 await element.click(); // Click the element
+             } else {
+                 // If the element does not exist within the frame, interact with the main page context
+                 const element = this.page.locator(locator);
+                 await element.click(); // Click the element
+             }
+        });
     }
+
+    /**
+     * Sets up a handler for all alert events using page.on.
+     * 
+     * @param {string} name - The name to identify the alert handler, used for logging purposes.
+     * @param {Function} callback - The callback function to handle the alert event.
+     */
+    async handleAllAlerts(name: string, callback: (message: string) => void) {
+        // Log the setup of the alert handler for test reporting
+        await test.step(`Setting up alert handler: ${name}`, async () => {
+            // Set up an alert handler for all alert events
+            this.page.on('dialog', async dialog => {
+                // Log the alert message
+                console.log(`Alert handled by ${name}: ${dialog.message()}`);
+
+                // Call the provided callback with the alert message
+                callback(dialog.message());
+
+                // Accept the alert
+                await dialog.accept();
+            });
+        });
+    }
+
+    /**
+     * Sets up a handler for the next alert event using page.once.
+     * 
+     * @param {string} name - The name to identify the alert handler, used for logging purposes.
+     * @param {Function} callback - The callback function to handle the alert event.
+     */
+    async handleNextAlert(name: string, callback: (message: string) => void) {
+        // Log the setup of the alert handler for test reporting
+        await test.step(`Setting up single alert handler: ${name}`, async () => {
+            // Set up an alert handler for the next alert event
+            this.page.once('dialog', async dialog => {
+                // Log the alert message
+                console.log(`Single alert handled by ${name}: ${dialog.message()}`);
+
+                // Call the provided callback with the alert message
+                callback(dialog.message());
+
+                // Accept the alert
+                await dialog.accept();
+            });
+        });
+    }
+
+    /**
+     * Asserts that an element is visible on the page.
+     * 
+     * @param {string} locator - The selector for the element.
+     * @param {string} name - The name of the element, used for logging purposes.
+     */
+    async assertElementVisible(locator: string, name: string) {
+      await test.step(`Assert element ${name} is visible`, async () => {
+        const element = this.page.locator(locator);
+        await expect(element).toBeVisible();
+        });
+    }
+
+    /**
+     * Asserts that an element contains the specified text.
+     * 
+     * @param {string} locator - The selector for the element.
+     * @param {string} text - The text that the element should contain.
+     * @param {string} name - The name of the element, used for logging purposes.
+     */
+    async assertElementContainsText(locator: string, text: string, name: string) {
+        await test.step(`Assert element ${name} contains text: ${text}`, async () => {
+            const element = this.page.locator(locator);
+            await expect(element).toContainText(text);
+        });
+    }
+
+    /**
+     * Asserts that the count of elements matching the locator is as expected.
+     * 
+     * @param {string} locator - The selector for the elements.
+     * @param {number} expectedCount - The expected number of elements.
+     * @param {string} name - The name of the elements, used for logging purposes.
+     */
+    async assertElementCount(locator: string, expectedCount: number, name: string) {
+        await test.step(`Assert element ${name} count is ${expectedCount}`, async () => {
+            const elements = this.page.locator(locator);
+            await expect(elements).toHaveCount(expectedCount);
+        });
+    }
+
+    /**
+     * Waits for an element to be visible on the page.
+     * 
+     * @param {string} locator - The selector for the element.
+     * @param {string} name - The name of the element, used for logging purposes.
+     * @param {number} timeout - The maximum time to wait for the element (optional).
+     */
+    async waitForElementVisible(locator: string, name: string, timeout?: number) {
+        await test.step(`Wait for element ${name} to be visible`, async () => {
+            const element = this.page.locator(locator);
+            await element.waitFor({ state: 'visible', timeout });
+        });
+    }
+
+    /**
+     * Waits for an element to be hidden on the page.
+     * 
+     * @param {string} locator - The selector for the element.
+     * @param {string} name - The name of the element, used for logging purposes.
+     * @param {number} timeout - The maximum time to wait for the element (optional).
+     */
+    async waitForElementHidden(locator: string, name: string, timeout?: number) {
+        await test.step(`Wait for element ${name} to be hidden`, async () => {
+            const element = this.page.locator(locator);
+            await element.waitFor({ state: 'hidden', timeout });
+        });
+    }
+
+    /**
+     * Waits for the specified text to be present in an element.
+     * 
+     * @param {string} locator - The selector for the element.
+     * @param {string} text - The text to wait for.
+     * @param {string} name - The name of the element, used for logging purposes.
+     * @param {number} timeout - The maximum time to wait for the text (optional).
+     */
+    async waitForTextInElement(locator: string, text: string, name: string, timeout?: number) {
+        await test.step(`Wait for text "${text}" in element ${name}`, async () => {
+            const element = this.page.locator(locator);
+            await element.waitFor({ state: 'attached', timeout });
+            await expect(element).toContainText(text);
+        });
+    }
+
+    /**
+     * Types a value into an input field with a delay.
+     * @param selector The selector for the input field.
+     * @param value The value to type into the input field.
+     */
+    async delayedType(selector: string, value: string) {
+        await this.page.delayedFill(selector, value); // Use a custom method to fill the input field with a delay
+    }
+
+    /**
+     * Clicks an element with a delay.
+     * @param selector The selector for the element to click.
+     */
+    async delayedClick(selector: string) {
+        await this.page.clickAndDelay(selector); // Use a custom method to click the element with a delay
+    }
+
 }

@@ -50,7 +50,8 @@ export class createAndPublishPage extends PlaywrightWrapper{
         await window.hover('text = Learning on Trailhead');
     }
 
-    async clickCertification(window: Page) {
+    async clickCertification(window: Page): Promise<Page> {
         await window.click('text = Salesforce Certification');
+        return window;
     } 
 }

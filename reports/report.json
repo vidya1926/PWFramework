@@ -1,0 +1,151 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\Vidyabharathi R\\Downloads\\Salesforce Framework\\playwright-salesforce\\playwright.config.ts",
+    "rootDir": "C:/Users/Vidyabharathi R/Downloads/Salesforce Framework/playwright-salesforce/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "C:\\Users\\Vidyabharathi R\\Downloads\\Salesforce Framework\\playwright-salesforce\\auth\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "open": "always"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "reports/report.json"
+        }
+      ],
+      [
+        "C:\\Users\\Vidyabharathi R\\Downloads\\Salesforce Framework\\playwright-salesforce\\node_modules\\allure-playwright\\dist\\cjs\\index.js",
+        {
+          "detail": true,
+          "outputFolder": "my-allure-results",
+          "suiteTitle": false
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/Vidyabharathi R/Downloads/Salesforce Framework/playwright-salesforce/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Vidyabharathi R/Downloads/Salesforce Framework/playwright-salesforce/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 300000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.45.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "without-fixtures\\login-test.spec.ts",
+      "file": "without-fixtures/login-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Verify login test functionality",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 8246,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "The URL https://login.salesforce.com loaded",
+                      "duration": 1778
+                    },
+                    {
+                      "title": "Testbox Username filled with ranjini.r@testleaf.com",
+                      "duration": 98
+                    },
+                    {
+                      "title": "Testbox Password filled with Testleaf@123",
+                      "duration": 114
+                    },
+                    {
+                      "title": "The Login Button is clicked",
+                      "duration": 3565
+                    }
+                  ],
+                  "startTime": "2024-08-03T07:39:16.302Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Vidyabharathi R\\Downloads\\Salesforce Framework\\playwright-salesforce\\test-results\\without-fixtures-login-test-Verify-login-test-functionality-chromium\\test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Vidyabharathi R\\Downloads\\Salesforce Framework\\playwright-salesforce\\test-results\\without-fixtures-login-test-Verify-login-test-functionality-chromium\\video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Vidyabharathi R\\Downloads\\Salesforce Framework\\playwright-salesforce\\test-results\\without-fixtures-login-test-Verify-login-test-functionality-chromium\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "117eda42ec5d43499ca5-1790b8f0d682116d8e62",
+          "file": "without-fixtures/login-test.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2024-08-03T07:39:02.988Z",
+    "duration": 23560.259000000002,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

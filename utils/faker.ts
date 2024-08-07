@@ -48,7 +48,7 @@ export class FakerData {
      * Generates a random job role using Faker.
      */
     static jobRole(): string {
-        return faker.person.jobTitle();
+        return faker.person.jobTitle()
     }
 
     /**
@@ -138,6 +138,7 @@ export class FakerData {
  */
 function capitalizeFirstLetter(letter: string) {
     return letter.charAt(0).toUpperCase() + letter.slice(1);
+
 }
 
 /**

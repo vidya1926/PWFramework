@@ -24,7 +24,7 @@ export class AdministratorPage extends PlaywrightWrapper {
     
             for (let index = 0; index < count; index++) {
                 // Get the text content of each certificate element
-                const text = await certificateElements.nth(index).textContent();
+                const text = await certificateElements.nth(index).innerText();
                 console.log(text);
     
                 // Optionally wait for a short period if needed

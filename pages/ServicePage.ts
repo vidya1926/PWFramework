@@ -30,8 +30,8 @@ export class ServicePage extends PlaywrightWrapper {
     }
 
     async chooseType(typeName: string) {
-        await this.delayedclick("(//label[text()='Type']/following::span[text()='--None--'])[1]");
-        await this.delayedclick(`//span[text()='${typeName}']`);
+        await this.delayedClick("(//label[text()='Type']/following::span[text()='--None--'])[1]");
+        await this.delayedClick(`//span[text()='${typeName}']`);
     }
 
     async chooseIndustry(industry: string) {
